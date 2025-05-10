@@ -36,8 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-config-nonprod.git
-          cd platform-k8s-app-config-nonprod/manifests
+          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-config-prod.git
+          cd platform-k8s-app-config-prod/manifests
           git checkout main
       - name: Install yq (Linux binary)
         run: |
@@ -49,12 +49,16 @@ jobs:
       - name: Update image tag
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.spec.template.spec.containers[0].image = "anonja/js-web-app:'"$SHORT_SHA"'"' platform-k8s-app-config-nonprod/manifests/deployment.yaml
+          yq -i '.spec.template.spec.containers[0].image = "anonja/js-web-app:'"$SHORT_SHA"'"' platform-k8s-app-config-prod/manifests/deployment.yaml
       - name: Show updated YAML (for debug)
-        run: cat platform-k8s-app-config-nonprod/manifests/deployment.yaml
+        run: cat platform-k8s-app-config-prod/manifests/deployment.yaml
       - name: Commit and Push
         run: |
-          cd platform-k8s-app-config-nonprod
+          cd platform-k8s-app-config-prod
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add manifests/deployment.yaml
           git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}"
           git push origin main
