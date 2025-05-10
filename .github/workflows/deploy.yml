@@ -37,7 +37,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-config-nonprod.git
-          cd manifests
+          cd platform-k8s-app-config-nonprod/manifests
+          ls -la
           git checkout main
       - name: Install yq (Linux binary)
         run: |
