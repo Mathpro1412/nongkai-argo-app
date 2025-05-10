@@ -7,8 +7,17 @@ on:
     branches: [ main ]
 
 jobs:
-  say-hello:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Print Hello
-        run: echo "Hello"
+      - name: Clone repository manually
+        run: |
+          git clone https://github.com/${{ github.repository }} .
+          git checkout ${{ github.sha }}
+      - name: Install Node.js
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          node -v
+          npm -v
