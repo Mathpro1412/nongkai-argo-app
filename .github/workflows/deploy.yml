@@ -52,3 +52,9 @@ jobs:
           yq -i '.spec.template.spec.containers[0].image = "anonja/js-web-app:'"$SHORT_SHA"'"' platform-k8s-app-config-nonprod/manifests/deployment.yaml
       - name: Show updated YAML (for debug)
         run: cat platform-k8s-app-config-nonprod/manifests/deployment.yaml
+      - name: Commit and Push
+        run: |
+          cd platform-k8s-app-config-nonprod
+          git add manifests/deployment.yaml
+          git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}"
+          git push origin main
