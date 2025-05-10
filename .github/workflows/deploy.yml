@@ -32,6 +32,10 @@ jobs:
             --tag $IMAGE_NAME:$SHORT_SHA \
             --push \
             .
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Clone another repo
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
