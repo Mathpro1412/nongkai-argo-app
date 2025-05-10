@@ -28,7 +28,7 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           docker buildx build \
-            --platform linux/amd64 \
+            --platform linux/amd64/v8 \
             --tag $IMAGE_NAME:$SHORT_SHA \
             --push \
             .
