@@ -51,4 +51,4 @@ jobs:
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           yq -i '.spec.template.spec.containers[0].image = "anonja/js-web-app:'"$SHORT_SHA"'"' platform-k8s-app-config-nonprod/manifests/deployment.yaml
       - name: Show updated YAML (for debug)
-        run: cat manifests/deployment.yaml
+        run: cat platform-k8s-app-config-nonprod/manifests/deployment.yaml
