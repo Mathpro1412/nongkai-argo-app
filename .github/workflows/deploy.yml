@@ -32,3 +32,23 @@ jobs:
             --tag $IMAGE_NAME:$SHORT_SHA \
             --push \
             .
+      - name: Clone another repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-config-nonprod.git
+          cd manifests
+          git checkout main
+      - name: Install yq (Linux binary)
+        run: |
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+      - name: Verify yq version
+        run: |
+          yq --version
+      - name: Update image tag
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          yq -i '.spec.template.spec.containers[0].image = "anonja/js-web-app:'"$SHORT_SHA"'"' manifests/deployment.yaml
+      - name: Show updated YAML (for debug)
+        run: cat manifests/deployment.yaml
