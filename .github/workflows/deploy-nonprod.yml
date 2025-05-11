@@ -40,8 +40,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-config-nonprod.git
-          cd platform-k8s-app-config-nonprod/manifests
+          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
+          cd platform-k8s-app-overlays/apps/nonprod
           git checkout main
       - name: Install yq (Linux binary)
         run: |
@@ -53,21 +53,21 @@ jobs:
       - name: Update image tag
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.spec.template.spec.containers[0].image = "anonja/js-web-app:'"$SHORT_SHA"'"' platform-k8s-app-config-nonprod/manifests/deployment.yaml
+          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
       - name: Show updated YAML (for debug)
-        run: cat platform-k8s-app-config-nonprod/manifests/deployment.yaml
+        run: cat platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
       - name: Commit and Push
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          cd platform-k8s-app-config-nonprod
+          cd platform-k8s-app-overlays
       
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       
-          git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-config-nonprod.git
+          git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
       
-          git add manifests/deployment.yaml
+          git add apps/nonprod/kustomization.yaml
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
           git push origin main
