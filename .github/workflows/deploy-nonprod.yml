@@ -54,8 +54,6 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
-      - name: Show updated YAML (for debug)
-        run: cat platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
       - name: Commit and Push
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
