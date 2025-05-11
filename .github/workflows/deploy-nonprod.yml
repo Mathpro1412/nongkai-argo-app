@@ -53,7 +53,7 @@ jobs:
       - name: Update image tag
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.images[0].newTag = "anonja/js-web-app:'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
+          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
       - name: Show updated YAML (for debug)
         run: cat platform-k8s-app-overlays/apps/nonprod/kustomization.yaml
       - name: Commit and Push
@@ -67,7 +67,7 @@ jobs:
       
           git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
       
-          git add apps/nonprod/deployment.yaml
+          git add apps/nonprod/kustomization.yaml
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
           git push origin main
