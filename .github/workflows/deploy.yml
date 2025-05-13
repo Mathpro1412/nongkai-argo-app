@@ -64,7 +64,7 @@ jobs:
       - name: Update image tag
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.images.tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
+          yq -i '.image.tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
       - name: Commit and Push
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
