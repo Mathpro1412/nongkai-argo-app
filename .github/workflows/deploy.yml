@@ -64,7 +64,7 @@ jobs:
       - name: Update image tag
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.images[0].tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
+          yq -i '.images.tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
       - name: Commit and Push
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -80,13 +80,3 @@ jobs:
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
           git push origin main
-      - name: Helm upgrade with new tag
-        run: |
-            helm registry login ghcr.io \
-              --username Mathpro1412 \
-              --password "${{ secrets.PERSONAL_HELM_ACCESS }}"
-    
-            helm upgrade --install nong-kai-helm-prod oci://ghcr.io/mathpro1412/platform-k8s-app-templates/helm-chart/app-web \
-              --version 0.1.0 \
-              -f nong-kai-helm-charts/prod/custom.yaml \
-              --namespace prod \
