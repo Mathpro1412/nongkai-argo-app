@@ -37,10 +37,15 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
 ### 5. Get the Initial Admin Password
+- **kubectl**
+     ```
+     kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+     ```
 
-```
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
-```
+- **argocd** CLI:
+     ```
+     argocd admin initial-password -n argocd
+     ```
 
 ### 6. Add SSH Credentials for Private Git Repository Access
 
@@ -57,12 +62,14 @@ To allow Argo CD to access your **private Git repository via SSH**, follow these
         - `argocd_ssh_key` — the **private key**
         - `argocd_ssh_key.pub` — the **public key**
 
+          > **Note:**  `-f` option in the `ssh-keygen` command specifies the **filename** for the generated key files.
    - **Add the SSH Public Key to Your Git Repository:**
      Add `argocd_ssh_key.pub` as a **Deploy Key** to your Git repository:
 
+     
 - **Add the SSH Public Key to Your Git Repository:**
-     Go to the following file in your repo:
-     [argocd-repo-creds.yaml](https://github.com/jumpbox-academy/argocd-levis/blob/main/02_repo-credential/argocd-repo-creds.yaml)
+     Download the following file in your repo:
+     [argocd-repo-creds.yaml](./argocd-repo-creds.yaml)
      Paste the content of `argocd_ssh_key` (private key) into the `sshPrivateKey:` field:
      
     ```yaml
@@ -133,15 +140,63 @@ Get the IP of your Kubernetes node:
 ```
 kubectl get nodes -o wide
 ```
-Then map the IP to your domain (for local testing, edit /etc/hosts):
+### Local (edit hosts file)
+- macOS / Linux
+
+     1. Open Terminal.
+     2. Run the command to edit `/etc/hosts` with sudo privileges:
+
+     ```bash
+     sudo vi /etc/hosts
+     ```
+- Windows
+
+     1. Open file as **Administrator** (Right-click → Run as administrator).
+     ```
+     C:\Windows\System32\drivers\etc\hosts
+     ```
+
+Add a new line with your Node IP and domain:
 ```
 <YOUR_NODE_IP> argocd.example.com
 ```
+
+### DNS Records on Cloud
+
+
+### 1. Map LoadBalancer IP to DNS
+
+- If your LoadBalancer provides a **static IPv4 address**, create an **A record** pointing your domain/subdomain to this IPv4 address.
+  
+- If your LoadBalancer provides a **static IPv6 address**, create an **AAAA record** pointing your domain/subdomain to this IPv6 address.
+
+---
+
+### 2. Map LoadBalancer Hostname (DDNS) to DNS
+
+- Some cloud providers (like AWS ELB, Google Cloud Load Balancer) provide a **dynamic hostname** (e.g., `abcd1234.elb.amazonaws.com`).
+
+- In this case, you **cannot create A/AAAA records** directly with IPs because the IP may change.
+
+- Instead, create a **CNAME record** for your domain/subdomain that points to the LoadBalancer's hostname.
+
+---
+
+### Example DNS Records
+
+| Record Type | Hostname (Domain/Subdomain) | Points to                     | Use case                      |
+|-------------|-----------------------------|------------------------------|------------------------------|
+| A           | argocd.example.com           | 192.0.2.123                  | Static IPv4 LoadBalancer IP   |
+| AAAA        | argocd.example.com           | 2001:0db8:85a3::8a2e:0370:7334 | Static IPv6 LoadBalancer IP   |
+| CNAME       | argocd.example.com           | abcd1234.elb.amazonaws.com   | Dynamic hostname LoadBalancer |
+
+---
+
 ### 5. Configure Argo CD to Run Without TLS (Optional for Local Ingress)
 
 To allow Argo CD to be accessed via Ingress over HTTP (without HTTPS/TLS), you can disable TLS on the `argocd-server` by setting:
 
-Go to the file in your repo: [argocd-cmd-params-cm.yaml](https://github.com/jumpbox-academy/argocd-levis/blob/main/01_installation/02_argocd-cmd-params-cm.yaml) Save the above YAML content into a file named **argocd-cmd-params-cm.yaml.**
+Go to the file in your repo: [argocd-cmd-params-cm.yaml](./02_argocd-cmd-params-cm.yaml) Save the above YAML content into a file named **argocd-cmd-params-cm.yaml.**
 
 
 - Apply the ConfigMap to your Kubernetes cluster:
@@ -162,4 +217,4 @@ https://jojo.saritrat
 
 ### 🎉 Welcome to Argo CD
 
-![Welcome to Argo CD](48377fd3-fc66-4d87-8982-15718132d05e.jpeg)
+![Welcome to Argo CD](./assets/argocd-portal.jpeg)
