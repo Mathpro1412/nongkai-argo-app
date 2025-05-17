@@ -76,7 +76,7 @@ jobs:
       
           git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
       
-          git apps/prod/kustomization.yaml
+          git add apps/prod/kustomization.yaml
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
           git push origin main
