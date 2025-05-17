@@ -36,20 +36,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      # - name: Clone another repo
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      #   run: |
-      #     git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
-      #     cd platform-k8s-app-overlays/apps/prod
-      #     git checkout main
       - name: Clone another repo
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/nong-kai-helm-charts.git
-          cd nong-kai-helm-charts/prod
+          git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
+          cd platform-k8s-app-overlays/apps/prod
           git checkout main
+      # - name: Clone another repo
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      #   run: |
+      #     git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/nong-kai-helm-charts.git
+      #     cd nong-kai-helm-charts/prod
+      #     git checkout main
       - name: Install yq (Linux binary)
         run: |
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
@@ -57,14 +57,14 @@ jobs:
       - name: Verify yq version
         run: |
           yq --version
-      # - name: Update image tag
-      #   run: |
-      #     SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-      #     yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
       - name: Update image tag
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.image.tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
+          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
+      # - name: Update image tag
+      #   run: |
+      #     SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+      #     yq -i '.image.tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
       - name: Commit and Push
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
