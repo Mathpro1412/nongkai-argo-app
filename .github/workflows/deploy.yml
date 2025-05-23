@@ -15,16 +15,15 @@ jobs:
     steps:
       - name: Code Stage
         run: |
+          echo "---------- Checkout Code ----------"
           git clone https://github.com/${{ github.repository }} .
           git checkout ${{ github.sha }}
-      - name: Set up Node.js
-        run: |
+          echo "---------- Set up Node.js ----------"
           curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
           sudo apt-get install -y nodejs
-      - name: Install dependencies
-        run: npm install
-      - name: Set up Docker Buildx
-        run: |
+          echo "---------- Install dependencies ----------"
+          npm install
+          echo "---------- Set up Docker Buildx ----------"
           docker buildx create --name mybuilder --use
           docker buildx inspect --bootstrap
       - name: Lint Stage
@@ -40,6 +39,8 @@ jobs:
             .
   CD:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: anonja/js-web-app
     needs: CI
     steps:
       - name: Publish Stage
@@ -48,16 +49,31 @@ jobs:
       - name: Docker Push
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          echo "IMAGE_NAME=$IMAGE_NAME"
-          echo "SHORT_SHA=$SHORT_SHA"
           docker push $IMAGE_NAME:$SHORT_SHA
       - name: Deploy Stage
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
+          echo "---------- Clone another repo ----------"
           git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
           cd platform-k8s-app-overlays/apps/prod
           git checkout main
+          echo "---------- Install yq (Linux binary) ----------"
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+          echo "---------- Update image tag ----------"
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
+          echo "---------- Commit and Push ----------"
+          cd platform-k8s-app-overlays
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
+          git add apps/prod/kustomization.yaml
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
+          git push origin main
       # - name: Clone another repo
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -65,33 +81,33 @@ jobs:
       #     git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/nong-kai-helm-charts.git
       #     cd nong-kai-helm-charts/prod
       #     git checkout main
-      - name: Install yq (Linux binary)
-        run: |
-          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
-          chmod +x /usr/local/bin/yq
-      - name: Verify yq version
-        run: |
-          yq --version
-      - name: Update image tag
-        run: |
-          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
+      # - name: Install yq (Linux binary)
+      #   run: |
+      #     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+      #     chmod +x /usr/local/bin/yq
+      # - name: Verify yq version
+      #   run: |
+      #     yq --version
+      # - name: Update image tag
+      #   run: |
+      #     SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+      #     yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
       # - name: Update image tag
       #   run: |
       #     SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
       #     yq -i '.image.tag = "'"$SHORT_SHA"'"' nong-kai-helm-charts/prod/custom.yaml
-      - name: Commit and Push
-        env:
-          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        run: |
-          cd platform-k8s-app-overlays
+      # - name: Commit and Push
+      #   env:
+      #     GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      #   run: |
+      #     cd platform-k8s-app-overlays
       
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       
-          git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
+      #     git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
       
-          git add apps/prod/kustomization.yaml
-          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
-          git push origin main
+      #     git add apps/prod/kustomization.yaml
+      #     SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+      #     git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
+      #     git push origin main
