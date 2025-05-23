@@ -48,6 +48,8 @@ jobs:
       - name: Docker Push
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          echo "IMAGE_NAME=$IMAGE_NAME"
+          echo "SHORT_SHA=$SHORT_SHA"
           docker push $IMAGE_NAME:$SHORT_SHA
       - name: Deploy Stage
         env:
