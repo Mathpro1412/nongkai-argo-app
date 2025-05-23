@@ -14,15 +14,15 @@ jobs:
     steps:
       - name: Code Stage
         run: |
-          echo "--------------------- Checkout Code --------------------"
+          echo "------------------------------- Checkout Code ------------------------------"
           git clone https://github.com/${{ github.repository }} .
           git checkout ${{ github.sha }}
-          echo "--------------------- Set up Node.js --------------------"
+          echo "------------------------------- Set up Node.js ------------------------------"
           curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
           sudo apt-get install -y nodejs
-          echo "--------------------- Install dependencies --------------------"
+          echo "------------------------------- Install dependencies ------------------------------"
           npm install
-          echo "--------------------- Set up Docker Buildx --------------------"
+          echo "------------------------------- Set up Docker Buildx ------------------------------"
           docker buildx create --name mybuilder --use
           docker buildx inspect --bootstrap
       - name: Lint Stage
@@ -39,9 +39,9 @@ jobs:
             .
       - name: Publish Stage
         run: |
-          echo "--------------------- Docker Login --------------------"
+          echo "--------------------- Docker Login ------------------------------"
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          echo "--------------------- Docker Push --------------------"
+          echo "--------------------- Docker Push ------------------------------"
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           echo "$IMAGE_NAME"
           echo "$SHORT_SHA"
@@ -55,20 +55,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          echo "--------------------- Clone another repo --------------------"
+          echo "------------------------------- Clone another repo ------------------------------"
           git clone https://${GITHUB_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
           cd platform-k8s-app-overlays/apps/prod
           git checkout main
-          echo "--------------------- Install yq (Linux binary) --------------------"
+          echo "--------------------- Install yq (Linux binary) ------------------------------"
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
           chmod +x /usr/local/bin/yq
-          echo "--------------------- Update image tag --------------------"
+          echo "------------------------------- Update image tag ------------------------------"
           echo "----debug---"
+          yq --version
           pwd
           ls -la
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' kustomization.yaml
-          echo "--------------------- Commit and Push --------------------"
+          echo "------------------------------- Commit and Push ------------------------------"
           cd platform-k8s-app-overlays
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
