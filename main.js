@@ -5,9 +5,11 @@ const app = express()
 const port = 3000
 
 app.get('/', (req, res) => {
-  res.send(`Hello New jj!`)
+  res.send(`Hello World!`)
 })
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
-})
+const server = app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});
+
+module.exports = {app, server};
