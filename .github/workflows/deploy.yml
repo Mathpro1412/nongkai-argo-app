@@ -70,10 +70,10 @@ jobs:
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' /home/runner/work/nongkai-argo-app/nongkai-argo-app/platform-k8s-app-overlays/apps/prod/kustomization.yaml
           echo "------------------------------- Commit and Push ------------------------------"
-          cd platform-k8s-app-overlays
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://${GH_TOKEN}@github.com/Mathpro1412/platform-k8s-app-overlays.git
+          git status
           git add apps/prod/kustomization.yaml
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           git commit -m "ci: update image to anonja/js-web-app:${SHORT_SHA}" || echo "No changes"
