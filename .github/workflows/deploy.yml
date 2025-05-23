@@ -65,6 +65,9 @@ jobs:
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
           chmod +x /usr/local/bin/yq
           echo "--------------------- Update image tag --------------------"
+          echo "----debug---"
+          pwd
+          ls -la
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
           echo "--------------------- Commit and Push --------------------"
