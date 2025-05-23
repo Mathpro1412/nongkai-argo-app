@@ -37,8 +37,6 @@ jobs:
             --tag $IMAGE_NAME:$SHORT_SHA \
             --load \
             .
-      - name: debug
-        run: docker images
       - name: Publish Stage
         run: |
           echo "--------------------- Docker Login --------------------"
@@ -69,7 +67,7 @@ jobs:
           pwd
           ls -la
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' platform-k8s-app-overlays/apps/prod/kustomization.yaml
+          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' kustomization.yaml
           echo "--------------------- Commit and Push --------------------"
           cd platform-k8s-app-overlays
           git config user.name "github-actions[bot]"
