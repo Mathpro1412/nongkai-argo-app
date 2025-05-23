@@ -68,7 +68,7 @@ jobs:
           pwd
           ls -la
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' /nongkai-argo-app/platform-k8s-app-overlays/apps/prod/kustomization.yaml
+          yq -i '.images[0].newTag = "'"$SHORT_SHA"'"' /home/runner/work/nongkai-argo-app/nongkai-argo-app/platform-k8s-app-overlays/apps/prod/kustomization.yaml
           echo "------------------------------- Commit and Push ------------------------------"
           cd platform-k8s-app-overlays
           git config user.name "github-actions[bot]"
