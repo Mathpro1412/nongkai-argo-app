@@ -17,18 +17,18 @@ jobs:
         run: |
           git clone https://github.com/${{ github.repository }} .
           git checkout ${{ github.sha }}
-      - name: debug
-        run: ls -la
   lint:
     runs-on: ubuntu-latest
     needs: code
     steps:
+      - name: Checkout code
+        run: |
+          git clone https://github.com/${{ github.repository }} .
+          git checkout ${{ github.sha }}
       - name: Set up Node.js
         run: |
           curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
           sudo apt-get install -y nodejs
-      - name: debug
-        run: ls -la
       - name: Install dependencies
         run: npm install
       - name: Run lints
@@ -37,12 +37,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
+      - name: Checkout code
+        run: |
+          git clone https://github.com/${{ github.repository }} .
+          git checkout ${{ github.sha }}
       - name: Run tests
         run: npm run test
   build:
     runs-on: ubuntu-latest
     needs: test
     steps:
+      - name: Checkout code
+        run: |
+          git clone https://github.com/${{ github.repository }} .
+          git checkout ${{ github.sha }}
       - name: Set up Docker Buildx
         run: |
           docker buildx create --name mybuilder --use
