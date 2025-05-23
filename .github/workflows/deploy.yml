@@ -36,12 +36,16 @@ jobs:
             --platform linux/arm64/v8 \
             --tag $IMAGE_NAME:$SHORT_SHA \
             .
+      - name: debug
+        run: docker images
       - name: Publish Stage
         run: |
           echo "--------------------- Docker Login --------------------"
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           echo "--------------------- Docker Push --------------------"
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          echo "$IMAGE_NAME"
+          echo "$SHORT_SHA"
           docker push $IMAGE_NAME:$SHORT_SHA
   CD:
     runs-on: ubuntu-latest
